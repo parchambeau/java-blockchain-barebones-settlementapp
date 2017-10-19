@@ -34,6 +34,8 @@ import com.mastercard.api.core.exception.ApiException;
 import com.mastercard.api.core.model.RequestMap;
 import com.mastercard.api.core.security.oauth.OAuthAuthentication;
 
+import MST1.*;
+
 /**
  * Copyright (c) 2017 Mastercard. All Rights Reserved.
  *
@@ -42,7 +44,7 @@ import com.mastercard.api.core.security.oauth.OAuthAuthentication;
 public class BarebonesSettlementApplication {
 
 	private String ENCODING = "base64";
-	private String APP_ID = getAppIdFromProtoBuffer("settle.proto");
+	private String APP_ID = getAppIdFromProtoBuffer("application.proto");
 
 	public static void main(String... args) throws Exception {
 		CommandLineParser parser = new DefaultParser();
@@ -93,7 +95,7 @@ public class BarebonesSettlementApplication {
 				break;
 			case "5":
 				printHeading("SHOW PROTOCOL BUFFER");
-				System.out.println(readResourceToString("/settle.proto"));
+				System.out.println(readResourceToString("/application.proto"));
 				captureInput("(press return to continue)", null);
 				break;
 			case "6":
@@ -127,7 +129,7 @@ public class BarebonesSettlementApplication {
 		request.set("application.definition.format", "proto3");
 		request.set("application.definition.encoding", "base64");
 		request.set("application.definition.messages",
-				encode(readResourceToString("/settle.proto").replace(APP_ID, APP_ID).getBytes(), "base64"));
+				encode(readResourceToString("/application.proto").replace(APP_ID, APP_ID).getBytes(), "base64"));
 		Node response;
 		try {
 			response = Node.provision(request);
@@ -138,7 +140,7 @@ public class BarebonesSettlementApplication {
 	}
 
 	private void updateNode() {
-		APP_ID = updateNode("Update Settlement Protocol Definition", "/settle.proto", APP_ID);
+		APP_ID = updateNode("Update Settlement Protocol Definition", "/application.proto", APP_ID);
 		captureInput("(press return to continue)", null);
 	}
 
@@ -172,9 +174,15 @@ public class BarebonesSettlementApplication {
 
 	String createSettlementRequestBuffer(String from, String to, int amount, String currency, String description,
 			int nonce) {
-		SettleProtocolBuffer.Request.Builder builder = SettleProtocolBuffer.Request.newBuilder();
-		SettleProtocolBuffer.Request protocolBuffer = builder.setFrom(from).setTo(to).setAmountMinorUnits(amount)
-				.setCurrency(currency).setDescription(description).setNonce(nonce).build();
+
+		Mst1.Request protocolBuffer = Mst1.Request.newBuilder()
+			.setTo(to)
+			.setFrom(from)
+			.setAmountMinorUnits(amount)
+			.setCurrency(currency)
+			.setNonce(nonce)
+			.setDescription(description)
+			.build();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			protocolBuffer.writeTo(baos);
