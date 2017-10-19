@@ -58,7 +58,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.mastercard.blockchain.BarebonesAuthSettleApplication</mainClass>
+							<mainClass>com.mastercard.blockchain.BarebonesSettlementApplication</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

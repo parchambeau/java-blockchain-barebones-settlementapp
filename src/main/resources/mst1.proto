@@ -1,10 +1,7 @@
 // Mastercard Blockchain Settlement Services Protocol
 
 syntax = "proto3";
-package P003;
-
-option java_package = "com.mastercard.blockchain";
-option java_outer_classname = "SettleProtocolBuffer";
+package MST1;
 
 message Request {
 	string to = 1;
