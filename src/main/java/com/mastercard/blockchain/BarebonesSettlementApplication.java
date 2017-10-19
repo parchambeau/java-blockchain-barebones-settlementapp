@@ -4,7 +4,6 @@
 package com.mastercard.blockchain;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,8 +42,9 @@ import MST1.*;
 
 public class BarebonesSettlementApplication {
 
-	private String ENCODING = "base64";
+	private String ENCODING = "hex";
 	private String APP_ID = getAppIdFromProtoBuffer("application.proto");
+	private Integer MST1_ID = new Integer(1297306673);
 
 	public static void main(String... args) throws Exception {
 		CommandLineParser parser = new DefaultParser();
@@ -183,13 +183,7 @@ public class BarebonesSettlementApplication {
 			.setNonce(nonce)
 			.setDescription(description)
 			.build();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			protocolBuffer.writeTo(baos);
-		} catch (IOException e) {
-			System.out.println("IOException writing buffer " + e.getMessage());
-		}
-		return encode(baos.toByteArray(), ENCODING);
+		return encode(protocolBuffer.toByteArray(), ENCODING);
 	}
 
 	private void createSettlementRequest() {
@@ -205,7 +199,7 @@ public class BarebonesSettlementApplication {
 		String req = createSettlementRequestBuffer(from, to, amount, currency, description, nonce);
 
 		RequestMap map = new RequestMap();
-		map.set("app", APP_ID);
+		map.set("app", MST1_ID);
 		map.set("encoding", ENCODING);
 		map.set("value", req);
 
@@ -223,20 +217,21 @@ public class BarebonesSettlementApplication {
 	private void confirmSettlement() {
 		RequestMap map = new RequestMap();
 		String hash = captureInput("hash", null);
-		map.set("encoding", ENCODING);
 		map.set("hash", hash);
+		String encoding = captureInput("encoding", "hex");
+		map.set("encoding", encoding);
 
 		try {
 			Settle response = Settle.create(map);
 			System.out.println("Encoding: " + response.get("encoding").toString());
-			System.out.println("nPublic Key: " + response.get("public_key").toString());
-			System.out.println("nSignature: " + response.get("signature").toString());
+			System.out.println("Public Key: " + response.get("public_key").toString());
+			System.out.println("Signature: " + response.get("signature").toString());
 		} catch (ApiException e) {
 			System.err.println(e.getMessage());
 		}
 		captureInput("(press return to continue)", null);
 	}
-
+	
 	private void initApi(CommandLine cmd) throws FileNotFoundException {
 		String keystorePath = captureInputFile("Keystore", cmd.getOptionValue("keystorePath", ""));
 		String storePass = captureInput("Keystore Password", cmd.getOptionValue("storePass", "keystorepassword"));
@@ -304,7 +299,7 @@ public class BarebonesSettlementApplication {
 
 	private String encode(byte[] bytes, String encoding) {
 		if (encoding.equals("hex")) {
-			return Hex.encodeHexString(bytes);
+			return Hex.encodeHexString(bytes).toLowerCase();
 		} else {
 			return Base64.getEncoder().encodeToString(bytes);
 		}

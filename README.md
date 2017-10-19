@@ -11,7 +11,7 @@ A sample use-case of a application that can make Settlement requests. To get sta
  * Execute the following commands
 ```bash
 mvn package
-java -jar target/java-blockchain-barebones-settlementapp-0.0.1-SNAPSHOT-jar-with-dependencies -kp <path to p12> -ck <your consumer key>
+java -jar target/java-blockchain-barebones-settlementapp-0.0.1-SNAPSHOT-jar-with-dependencies.jar -kp <path to p12> -ck <your consumer key>
 ```
 
 When started it gets you to confirm your parameters and then displays a simple menu. 
